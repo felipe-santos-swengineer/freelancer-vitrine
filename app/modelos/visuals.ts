@@ -14,6 +14,7 @@ export const visualProfiles: Record<DemoSlug, readonly [VisualStyle, VisualStyle
   menu: ['brutalist', 'editorial', 'atelier'], configurator: ['aurora', 'minimal', 'editorial'], flashcards: ['atelier', 'brutalist', 'minimal'], 'study-planner': ['minimal', 'terminal', 'aurora'], quiz: ['brutalist', 'aurora', 'editorial'], maze: ['terminal', 'aurora', 'brutalist'], portfolio: ['editorial', 'aurora', 'brutalist'], estimator: ['atelier', 'terminal', 'minimal'], clinic: ['atelier', 'editorial', 'minimal'], wellness: ['aurora', 'atelier', 'minimal'],
   'faq-bot': ['minimal', 'atelier', 'brutalist'], whatsapp: ['minimal', 'terminal', 'aurora'], automation: ['terminal', 'aurora', 'brutalist'], 'ai-assistant': ['aurora', 'editorial', 'terminal'],
   'product-3d': ['aurora', 'minimal', 'brutalist'], 'space-3d': ['atelier', 'editorial', 'minimal'], 'immersive-3d': ['aurora', 'terminal', 'brutalist'],
+  platformer: ['aurora', 'brutalist', 'terminal'], 'space-shooter': ['terminal', 'aurora', 'brutalist'],
 };
 export function resolveVisual(slug: DemoSlug, candidate: string | null | undefined): VisualStyle {
   return visualProfiles[slug].find(v => v === candidate) || visualProfiles[slug][0];

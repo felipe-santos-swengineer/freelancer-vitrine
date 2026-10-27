@@ -55,8 +55,10 @@ Os cards da vitrine abrem aplicações navegáveis. A página `/modelos` reúne 
 | `/modelos/product-3d` | Produto tridimensional geométrico, giro/zoom, quatro acabamentos, vistas e separação ilustrativa de componentes. |
 | `/modelos/space-3d` | Showroom tridimensional com sofá, mesa, planta e luminária, cores, luz, vistas e propostas exportáveis. |
 | `/modelos/immersive-3d` | Narrativa de marca em três capítulos, com esculturas 3D distintas e navegação por botões/teclado. |
+| `/modelos/platformer` | Vale das Centelhas: plataforma com três fases, física, câmera lateral, inimigos, saltos, coleta, checkpoints e vidas. |
+| `/modelos/space-shooter` | Órbita Zero: combate de nave em cinco ondas, projéteis, colisões, escudos e dificuldade progressiva. |
 
-Os 23 modelos usam o catálogo central em `app/modelos/catalog.ts`, incluindo **IA e automações** e **Experiências 3D**. Cada categoria tem pelo menos uma opção **Essencial**, uma **Profissional** e uma **Inovadora**. A vitrine e `/modelos` permitem combinar busca, categoria e nível, com o público de cada modelo. Os níveis descrevem o tipo de experiência, sem impor valores ou promessas comerciais.
+Os 25 modelos usam o catálogo central em `app/modelos/catalog.ts`, incluindo **IA e automações** e **Experiências 3D**. Cada categoria tem pelo menos uma opção **Essencial**, uma **Profissional** e uma **Inovadora**. A vitrine e `/modelos` permitem combinar busca, categoria e nível, com o público de cada modelo. Os níveis descrevem o tipo de experiência, sem impor valores ou promessas comerciais.
 
 Com o servidor rodando, `npm run test:routes` verifica todas as rotas, os links dos dois catálogos, o conteúdo inicial de cada aplicação e o 404 de uma rota inexistente. Para outro endereço: `npm run test:routes -- http://localhost:3100`.
 
@@ -68,7 +70,7 @@ Uma versão de produção exige definir e conectar provedor de IA, canal oficial
 
 ### Variações visuais e de navegação
 
-Cada uma das 23 aplicações tem três composições selecionadas, totalizando **69 variações de apresentação** em seis direções:
+Cada uma das 25 aplicações tem três composições selecionadas, totalizando **75 variações de apresentação** em seis direções:
 
 | Estilo | Composição e navegação |
 | --- | --- |
@@ -81,7 +83,17 @@ Cada uma das 23 aplicações tem três composições selecionadas, totalizando *
 
 O catálogo permite filtrar por estilo e abrir cada variação diretamente. Dentro das aplicações, a barra superior alterna os estilos sem reiniciar a aplicação ou limpar seus dados. Links com `?visual=editorial`, por exemplo, preservam a escolha visual; estilos indisponíveis retornam à composição padrão daquela aplicação. A seleção por URL é aplicada no cliente após a hidratação.
 
-As direções alteram layout, hierarquia tipográfica, apresentação de listas/cards e navegação, além da paleta. Não representam 69 sistemas independentes: são 69 apresentações para os 23 modelos funcionais. O controle **Efeitos ativos/pausados** desliga animações e transições; `prefers-reduced-motion` também é respeitado. A navegação lateral se adapta para uma faixa horizontal no celular; o dock continua acessível e o menu de console abre por botão.
+As direções alteram layout, hierarquia tipográfica, apresentação de listas/cards e navegação, além da paleta. Não representam 75 sistemas independentes: são 75 apresentações para os 25 modelos funcionais. O controle **Efeitos ativos/pausados** desliga animações e transições; `prefers-reduced-motion` também é respeitado. A navegação lateral se adapta para uma faixa horizontal no celular; o dock continua acessível e o menu de console abre por botão.
+
+### Jogos de plataforma e ação
+
+Os dois jogos avançados usam Canvas 2D, com personagens, formas e cenários originais desenhados pelo código. O motor em `game-engine.ts` usa simulação em passos fixos de 1/60 s, independente da frequência de renderização. Os testes cobrem salto sobre abismo, aterrissagem, pausa, coleta única, respawn, invulnerabilidade, salto sobre inimigos, progressão das fases, cadência dos tiros, colisões e vitória.
+
+**Vale das Centelhas:** setas/A/D para mover; Espaço/W/↑ para pular. Colete centelhas, salte sobre os adversários e chegue ao portal. Cada fase tem um checkpoint; vidas e pontos acompanham a progressão entre as três fases.
+
+**Órbita Zero:** setas/WASD para pilotar e Espaço para disparar. Complete cinco ondas, preservando os três escudos. As últimas ondas têm adversários com mais resistência.
+
+Os dois têm controles por toque, instruções, pausa e recordes locais. P/Escape pausa pelo teclado. Perda de foco, aba oculta, saída do tabuleiro visível e mudança de seção pausam a partida. Não há limite de tempo, backend ou sincronização de recordes. A pausa dos efeitos decorativos do site é separada da pausa do jogo.
 
 ### Experiências 3D
 

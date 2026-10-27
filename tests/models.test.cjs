@@ -17,6 +17,70 @@ const { identifyIntent, searchKnowledge, runAutomation } = load('app/modelos/ai-
 const { visualStyles, visualProfiles, resolveVisual } = load('app/modelos/visuals.ts');
 const { briefingWhatsAppUrl, formatBriefing } = load('app/contact.ts');
 const { safeZoom, sceneDistance, finishes, sceneChapters } = load('app/modelos/three-config.ts');
+const { createPlatform, stepPlatform, createShooter, stepShooter, emptyControls, platformLevels } = load('app/modelos/game-engine.ts');
+
+test('platform physics clears the first gap, lands and stays still when paused', () => {
+  const state = createPlatform(); state.mode = 'playing'; state.enemies.forEach(e => { e.alive = false; });
+  Object.assign(state.player, { x: 610, y: 434, grounded: true });
+  const input = emptyControls(); input.right = true; input.jump = true;
+  stepPlatform(state, input, 1 / 60); assert.ok(state.player.vy < 0);
+  input.jump = false;
+  for (let i = 0; i < 55; i++) stepPlatform(state, input, 1 / 60);
+  assert.ok(state.player.x > 740); assert.equal(state.player.grounded, true); assert.equal(state.lives, 3);
+  state.mode = 'paused'; const before = JSON.stringify(state); stepPlatform(state, input, 1 / 60); assert.equal(JSON.stringify(state), before);
+});
+
+test('jump height can reach the 105px entry platforms without allowing repeated air jumps', () => {
+  const state = createPlatform(); state.mode = 'playing'; state.enemies.forEach(e => { e.alive = false; });
+  Object.assign(state.player, { x: 50, y: 434, grounded: true });
+  const input = emptyControls(); input.jump = true; stepPlatform(state, input, 1 / 60); input.jump = false;
+  let top = state.player.y;
+  for (let frame = 0; frame < 40; frame++) { if (frame === 8) input.jump = true; else input.jump = false; stepPlatform(state, input, 1 / 60); top = Math.min(top, state.player.y); }
+  const height = 434 - top; assert.ok(height >= 105); assert.ok(height < 130);
+});
+
+test('collectibles cannot score twice and falling respawns at the activated checkpoint', () => {
+  const state = createPlatform(); state.mode = 'playing'; const coin = platformLevels[0].coins[0];
+  Object.assign(state.player, { x: coin.x - 14, y: coin.y - 18 }); stepPlatform(state, emptyControls(), 1 / 60);
+  assert.equal(state.score, 100); stepPlatform(state, emptyControls(), 1 / 60); assert.equal(state.score, 100);
+  state.checkpoint = true; state.player.y = 700; stepPlatform(state, emptyControls(), 1 / 60);
+  assert.equal(state.lives, 2); assert.equal(state.player.x, platformLevels[0].checkpoint); assert.ok(state.invulnerable > 0);
+  const lives = state.lives; state.enemies[0].x = state.player.x; state.enemies[0].y = state.player.y; stepPlatform(state, emptyControls(), 1 / 60); assert.equal(state.lives, lives);
+});
+
+test('platform progression preserves score and lives and ends on the third portal', () => {
+  let state = createPlatform(); state.mode = 'playing'; state.lives = 2; state.score = 100;
+  for (let level = 0; level < 3; level++) {
+    state.player.x = platformLevels[level].width - 80; state.player.y = 430;
+    stepPlatform(state, emptyControls(), 1 / 60);
+    assert.equal(state.mode, level === 2 ? 'won' : 'levelcomplete');
+    if (level < 2) { state = createPlatform(level + 1, state); state.mode = 'playing'; }
+  }
+  assert.equal(state.lives, 2); assert.equal(state.score, 1600);
+});
+
+test('stomping an enemy rewards the player and bounces upward', () => {
+  const state = createPlatform(); state.mode = 'playing'; const enemy = state.enemies[0];
+  Object.assign(state.player, { x: enemy.x + 3, y: enemy.y - 37, vy: 160 });
+  stepPlatform(state, emptyControls(), 1 / 60);
+  assert.equal(enemy.alive, false); assert.equal(state.score, 200); assert.ok(state.player.vy < 0); assert.equal(state.lives, 3);
+});
+
+test('shooter respects firing cooldown and one shield loss during invulnerability', () => {
+  const state = createShooter(); state.mode = 'playing'; const input = emptyControls(); input.action = true;
+  stepShooter(state, input, 1 / 60); assert.equal(state.shots.length, 1);
+  stepShooter(state, input, 1 / 60); assert.equal(state.shots.length, 1);
+  for (let i = 0; i < 2; i++) state.hostile.push({ x: state.player.x, y: state.player.y - 4, active: true });
+  stepShooter(state, emptyControls(), 1 / 60); assert.equal(state.lives, 2); assert.ok(state.invulnerable > 0);
+});
+
+test('projectile collision destroys a target and fifth wave completes the expedition', () => {
+  const state = createShooter(); state.mode = 'playing'; const target = state.enemies[0];
+  target.phase = 0; state.time = -1 / 60; state.shots.push({ x: target.baseX, y: target.baseY + 10, active: true });
+  stepShooter(state, emptyControls(), 1 / 60); assert.equal(target.alive, false); assert.equal(state.score, 150);
+  state.enemies.forEach(e => { e.alive = false; }); stepShooter(state, emptyControls(), 1 / 60); assert.equal(state.wave, 2); assert.ok(state.enemies.some(e => e.alive));
+  state.wave = 5; state.enemies.forEach(e => { e.alive = false; }); stepShooter(state, emptyControls(), 1 / 60); assert.equal(state.mode, 'won');
+});
 
 test('briefing targets the owner and preserves accents, line breaks and query characters', () => {
   const brief = { name: '  José & Ana  ', email: 'contato+projeto@example.com', idea: ' Loja & cursos?\nOrçamento: R$ 2.000 + integração #1 🚀 ' };
@@ -31,7 +95,7 @@ test('briefing targets the owner and preserves accents, line breaks and query ch
 
 test('every category offers essential, professional and innovative applications', () => {
   assert.equal(new Set(demos.map(d => d.slug)).size, demos.length);
-  assert.equal(demos.length, 23);
+  assert.equal(demos.length, 25);
   for (const category of categories) {
     for (const level of levels) assert.ok(demos.some(d => d.category === category && d.level === level), `${category} needs ${level}`);
   }
@@ -62,7 +126,7 @@ test('each application has three distinct visual compositions and safe shared UR
     const unavailable = Object.keys(visualStyles).find(v => !variants.includes(v));
     assert.equal(resolveVisual(demo.slug, unavailable), variants[0]);
   }
-  assert.equal(combinations, 69);
+  assert.equal(combinations, 75);
   assert.equal(new Set(Object.values(visualStyles).map(v => v.nav)).size, 6);
 });
 

@@ -8,6 +8,7 @@ import { DigitalMenu, Configurator, Flashcards, StudyPlanner, Quiz, MazeGame, Si
 import { FaqBot, WhatsAppDemo, AutomationDemo, KnowledgeAssistant } from './ai-apps';
 import { DesignExperience, DemoNavigation } from './design-experience';
 import { ProductThree, SpaceThree, ImmersiveThree } from './three-apps';
+import AdvancedGame from './advanced-games';
 import './demos.css';
 import './extras.css';
 import './ai.css';
@@ -38,6 +39,7 @@ export default function DemoApp({ slug }: { slug: DemoSlug }) {
     quiz: <Quiz />, maze: <MazeGame />, portfolio: <SimpleSite />, estimator: <Estimator />, clinic: <SimpleSite clinic />, wellness: <Wellness />,
     'faq-bot': <FaqBot />, whatsapp: <WhatsAppDemo />, automation: <AutomationDemo />, 'ai-assistant': <KnowledgeAssistant />,
     'product-3d': <ProductThree />, 'space-3d': <SpaceThree />, 'immersive-3d': <ImmersiveThree />,
+    platformer: <AdvancedGame key="platform" kind="platform" />, 'space-shooter': <AdvancedGame key="shooter" kind="shooter" />,
   };
   return <DesignExperience slug={slug}><div className={`demo-shell theme-${slug}`}><div className="demo-banner"><Link href="/#modelos"><ArrowLeft size={13} /> Voltar à vitrine</Link><span>DEMONSTRAÇÃO · Dados fictícios, salvos neste navegador</span><Link href="/modelos">Todos os modelos <ArrowUpRight size={13} /></Link></div><div className="demo-brandbar"><Link href={`/modelos/${slug}`} className="demo-brand">{demo.brand}<span>✳</span></Link><span>{demo.title} · {demo.level}</span><Link href={`/?modelo=${slug}#contato`}>Quero um projeto assim <ArrowUpRight size={14} /></Link></div>{applications[slug]}<footer className="demo-footer"><b>{demo.brand} · aplicação demonstrativa</b><span>Sem cobranças, envios ou reservas reais.</span><Link href="/modelos">Explorar outros modelos ↗</Link></footer></div></DesignExperience>;
 }
