@@ -9,6 +9,9 @@ const { demos } = context.exports;
 const visualContext = { exports: {} };
 vm.runInNewContext(ts.transpileModule(fs.readFileSync(require('node:path').join(__dirname, '../app/modelos/visuals.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, visualContext);
 const { visualProfiles } = visualContext.exports;
+const paginationContext = { exports: {} };
+vm.runInNewContext(ts.transpileModule(fs.readFileSync(require('node:path').join(__dirname, '../app/modelos/pagination.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, paginationContext);
+const { CATALOG_PAGE_SIZE } = paginationContext.exports;
 const base = process.argv[2] || 'http://localhost:3000';
 const site = new URL(base);
 const prefix = site.pathname.replace(/\/$/, '');
@@ -29,7 +32,9 @@ async function check() {
         assert.ok(html.includes('home-three-hero'), 'Missing interactive 3D hero');
         assert.ok(html.includes('Explore experiências 3D'), 'Missing primary 3D call to action');
       }
-      for (const demo of demos) {
+      assert.equal([...html.matchAll(/aria-roledescription="carrossel"/g)].length, Math.min(CATALOG_PAGE_SIZE, demos.length), `Unexpected number of previews on ${route}`);
+      assert.ok(html.includes('aria-label="Páginas dos modelos"'), `Missing pagination on ${route}`);
+      for (const demo of demos.slice(0, CATALOG_PAGE_SIZE)) {
         assert.ok(hasLink(demo.slug), `Missing ${demo.slug} on ${route}`);
         if (route === '/modelos') for (const visual of visualProfiles[demo.slug]) assert.ok(hasLink(demo.slug, visual), `Missing ${demo.slug}/${visual}`);
       }
@@ -42,6 +47,6 @@ async function check() {
   }));
   const missing = await fetch(`${site.origin}${prefix}/modelos/modelo-inexistente/`); assert.equal(missing.status, 404);
   console.log(pages.join('\n')); console.log('404 /modelos/modelo-inexistente');
-  console.log('All applications, both catalogs and all visual variation links passed HTTP/render checks.');
+  console.log('All applications and both paginated catalogs passed HTTP/render checks.');
 }
 check().catch(error => { console.error(error); process.exitCode = 1; });

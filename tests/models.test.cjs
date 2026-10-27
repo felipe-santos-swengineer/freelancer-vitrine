@@ -18,6 +18,28 @@ const { visualStyles, visualProfiles, resolveVisual } = load('app/modelos/visual
 const { briefingWhatsAppUrl, formatBriefing } = load('app/contact.ts');
 const { safeZoom, sceneDistance, finishes, sceneChapters } = load('app/modelos/three-config.ts');
 const { createPlatform, stepPlatform, createShooter, stepShooter, emptyControls, platformLevels } = load('app/modelos/game-engine.ts');
+const { paginate, pageForSlug, CATALOG_PAGE_SIZE } = load('app/modelos/pagination.ts');
+
+test('catalog pagination covers all models once, with six items and a partial last page', () => {
+  assert.equal(CATALOG_PAGE_SIZE, 6);
+  const pages = Array.from({ length: Math.ceil(demos.length / CATALOG_PAGE_SIZE) }, (_, i) => paginate(demos, i + 1));
+  assert.equal(pages[0].start, 1); assert.equal(pages[0].end, 6);
+  assert.equal(pages.at(-1).end, demos.length);
+  const all = pages.flatMap(p => p.items.map(item => item.slug));
+  assert.equal(all.length, demos.length); assert.equal(new Set(all).size, demos.length);
+  assert.equal(all.join(','), demos.map(d => d.slug).join(','));
+  for (const page of pages) assert.ok(page.items.length <= 6);
+});
+
+test('pagination handles filtered results, out-of-range pages, empty search and direct anchors', () => {
+  const games = demos.filter(d => d.category === 'Jogos');
+  const filtered = paginate(games, 99); assert.equal(filtered.page, 1); assert.equal(filtered.items.length, games.length);
+  const empty = paginate([], 5); assert.equal(empty.items.length, 0); assert.equal(empty.start, 0); assert.equal(empty.end, 0); assert.equal(empty.page, 1);
+  assert.equal(paginate(demos, -4).page, 1); assert.equal(paginate(demos, NaN).page, 1);
+  assert.equal(paginate(demos, 100).page, Math.ceil(demos.length / 6));
+  for (const demo of demos) { const page = pageForSlug(demos, demo.slug); assert.ok(paginate(demos, page).items.some(d => d.slug === demo.slug)); }
+  assert.equal(pageForSlug(demos, 'modelo-inexistente'), null);
+});
 
 test('platform physics clears the first gap, lands and stays still when paused', () => {
   const state = createPlatform(); state.mode = 'playing'; state.enemies.forEach(e => { e.alive = false; });
