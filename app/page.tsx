@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, ArrowRight, ShoppingBag, GraduationCap, Gamepad2, CalendarDays, BarChart3, HeartPulse, X, Menu, Check, Bot, Box } from 'lucide-react';
 import { demos, categories, levels } from './modelos/catalog';
 import { visualProfiles, visualStyles, type VisualStyle } from './modelos/visuals';
-import VariantPreview from './modelos/variant-preview';
+import PreviewSlider from './modelos/preview-slider';
 import { briefingWhatsAppUrl, formatBriefing, CONTACT_WHATSAPP_LABEL } from './contact';
 import { HeroThree, ThreeShowcase } from './three-showcase';
 import AboutMe from './about-me';
@@ -17,7 +17,7 @@ const filters = ['Todos os modelos', ...categories];
 
 function Preview({ kind, large = false, visual }: { kind: string; large?: boolean; visual?: VisualStyle }) {
   const demo = demos.find(d => d.slug === kind)!;
-  return <div className={`preview variant-home-preview ${large ? 'preview-large' : ''}`}><VariantPreview slug={demo.slug} visual={visual || visualProfiles[demo.slug][0]} /></div>;
+  return <div className={`preview variant-home-preview ${large ? 'preview-large' : ''}`}><PreviewSlider key={`${demo.slug}-${visual || 'all'}`} slug={demo.slug} initialVisual={visual} autoPlay={!visual && !large} /></div>;
 }
 export default function Home() {
   const [filter, setFilter] = useState('Todos os modelos');
