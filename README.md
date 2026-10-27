@@ -24,6 +24,7 @@ npm start
 
 - `app/page.tsx`: apresentação, categorias, modelos e processo de trabalho. O nome Felipe é um texto inicial editável; revise a apresentação antes de publicar.
 - `app/layout.tsx`: título e descrição para buscadores.
+- `app/about-me.tsx` e `app/about.css`: apresentação, formação, histórico profissional e referências de projetos, com links para o portfólio completo, GitHub e LinkedIn. O conteúdo foi adaptado das informações públicas do [portfólio de Felipe Santos](https://felipe-santos-swengineer.github.io/fs_portfolio/) e de seu arquivo `src/content.js`.
 - `app/globals.css`: cores, tipografia e layouts responsivos.
 
 ## Aplicações demonstrativas
