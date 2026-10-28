@@ -106,9 +106,9 @@ Se WebGL não estiver disponível ou o contexto gráfico for perdido, a página 
 
 Arquivos: `app/three-showcase.tsx`, `app/modelos/scene-3d.tsx`, `three-apps.tsx`, `three-config.ts` e `three.css`.
 
-Configuração: `visuals.ts`. Interface de comparação e navegação: `design-experience.tsx`. Composições: `visuals.css`. Prévias: `variant-preview.tsx` e `variant-previews.css`.
+Configuração: `visuals.ts`. Interface de comparação e navegação: `design-experience.tsx`. Composições: `visuals.css`. Prévias gravadas: `model-recording.tsx` e `model-recording.css`.
 
-Os cards da página inicial e de `/modelos` usam um slider com as três prévias visuais de cada aplicação (`preview-slider.tsx` e `preview-slider.css`). As prévias são composições leves em HTML/CSS dos estilos, sem captura de tela ou carregamento das aplicações dentro dos cards. Cada slide abre diretamente a variação mostrada. Há setas, indicadores, navegação pelas setas do teclado, gesto horizontal e controle de reprodução. A rotação automática pausa com mouse/foco/interação, fora da tela e em abas ocultas, e fica desativada quando há preferência por movimento reduzido. Um filtro de estilo inicia o slider naquele estilo, sem rotação automática.
+Os cards da página inicial e de `/modelos` usam GIFs de gravações reais das aplicações, com rolagem e interações. Cada modelo tem uma gravação por estilo, totalizando 75 GIFs com seus pôsteres estáticos, em `public/previews/`. O componente `model-recording.tsx` respeita o estilo selecionado, carrega animações apenas quando visíveis, troca por imagem estática fora da tela ou em aba oculta e oferece pausa/reprodução. Com movimento reduzido, mostra o pôster. Clicar na prévia abre a aplicação correspondente. As miniaturas não carregam as aplicações em iframes.
 
 Os dois catálogos mostram **seis modelos por página**, com controles Anterior/Próxima, números de página e intervalo de resultados. A busca e os filtros são aplicados antes da paginação e voltam à primeira página quando alterados. Apenas os cards da página atual são montados. Links diretos como `/modelos/#wellness` abrem a página correspondente e rolam até o modelo. A paginação é local; não requer servidor. O tamanho da página fica em `pagination.ts`, e o componente e o hook compartilhados em `catalog-pagination.tsx`.
 
@@ -140,3 +140,14 @@ npm start
 ```
 
 Abra http://localhost:3000/freelancer-vitrine/. Sem essa variável, o build e a prévia usam a raiz. `npm run dev` mantém o desenvolvimento com recarregamento. `npm start` serve a exportação localmente, sem backend.
+
+### Regenerar as gravações dos modelos
+
+Os GIFs são capturados do site local com Playwright/Chromium e codificados com gifenc e Sharp. Não são animações ilustrativas: o script usa os controles reais dos modelos, com dados fictícios em contextos isolados. As gravações dos jogos usam o relógio de teste para manter o tempo da partida independente do custo da captura. Não há mensagens reais, pagamentos ou conexões a contas externas.
+
+1. Gere a exportação com `NEXT_PUBLIC_BASE_PATH=/freelancer-vitrine` e inicie `npm start -- --port 3100` em outro terminal.
+2. Instale o navegador de captura: `npx playwright install chromium`.
+3. Execute `npm run record:previews`. O script retoma os arquivos já gravados. Para atualizar um modelo: `npm run record:previews -- --only=commerce --force`.
+4. Execute `npm run test:recordings`, depois `npm run build` para incluir os arquivos em `out/`.
+
+`PREVIEW_URL` permite escolher outro endereço local. O script recusa endereços externos. O manifesto registra modelo, estilo, dimensões, quantidade de quadros e tamanho do arquivo. A validação confere os 75 GIFs, a presença de animação real entre quadros e os pôsteres. As capturas usam 720 × 450 pixels e 20 quadros. O workflow valida os arquivos existentes; ele não instala Chromium nem regrava as demonstrações a cada publicação.

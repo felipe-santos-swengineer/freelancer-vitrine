@@ -9,7 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/models.test.cjs",
     "test:routes": "node tests/routes.cjs",
-    "test:export": "node tests/export.cjs"
+    "test:export": "node tests/export.cjs",
+    "record:previews": "node scripts/record-previews.cjs",
+    "test:recordings": "node tests/recordings.cjs",
+    "test:preview-ui": "node tests/preview-ui.cjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -23,6 +26,9 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.186.0",
+    "gifenc": "^1.0.3",
+    "playwright": "^1.64.1",
+    "sharp": "^0.35.5",
     "typescript": "^5.7.0"
   }
 }

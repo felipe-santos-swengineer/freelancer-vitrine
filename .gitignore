@@ -6,3 +6,4 @@ out/
 .env.*
 !.env.example
 *.tsbuildinfo
+.preview-recording-errors.json

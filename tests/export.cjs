@@ -12,7 +12,7 @@ const base = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/\/$/, '');
 for (const route of ['', 'modelos', ...demos.map(d => `modelos/${d.slug}`)]) {
   const file = path.join(root, 'out', route, 'index.html'); assert.ok(fs.existsSync(file), `Missing ${route}`);
   const html = fs.readFileSync(file, 'utf8');
-  const links = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map(m => m[1].replaceAll('&amp;', '&'));
+  const links = [...html.matchAll(/(?:href|src|data-gif)="([^"]+)"/g)].map(m => m[1].replaceAll('&amp;', '&'));
   for (const link of links) {
     if (!link.startsWith('/') || link.startsWith('//')) continue;
     assert.ok(!base || link.startsWith(`${base}/`) || link === base, `Unprefixed link on ${route}: ${link}`);
@@ -23,7 +23,7 @@ for (const route of ['', 'modelos', ...demos.map(d => `modelos/${d.slug}`)]) {
     assert.ok(links.some(link => link.split('?')[0].replace(/\/$/, '') === `${base}/modelos/${demo.slug}` && link.includes(`visual=${visual}`)), `Missing variation: ${demo.slug}/${visual}`);
   }
   if (route === '' || route === 'modelos') {
-    assert.equal([...html.matchAll(/aria-roledescription="carrossel"/g)].length, Math.min(CATALOG_PAGE_SIZE, demos.length));
+    assert.equal([...html.matchAll(/data-model-preview="recording"/g)].length, Math.min(CATALOG_PAGE_SIZE, demos.length) + (route === '' ? 3 : 0));
     assert.ok(html.includes('aria-label="Páginas dos modelos"'));
     assert.ok(html.includes('aria-current="page"'));
   }

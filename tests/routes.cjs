@@ -32,7 +32,7 @@ async function check() {
         assert.ok(html.includes('home-three-hero'), 'Missing interactive 3D hero');
         assert.ok(html.includes('Explore experiências 3D'), 'Missing primary 3D call to action');
       }
-      assert.equal([...html.matchAll(/aria-roledescription="carrossel"/g)].length, Math.min(CATALOG_PAGE_SIZE, demos.length), `Unexpected number of previews on ${route}`);
+      assert.equal([...html.matchAll(/data-model-preview="recording"/g)].length, Math.min(CATALOG_PAGE_SIZE, demos.length) + (route === '/' ? 3 : 0), `Unexpected number of previews on ${route}`);
       assert.ok(html.includes('aria-label="Páginas dos modelos"'), `Missing pagination on ${route}`);
       for (const demo of demos.slice(0, CATALOG_PAGE_SIZE)) {
         assert.ok(hasLink(demo.slug), `Missing ${demo.slug} on ${route}`);
